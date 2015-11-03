@@ -7,8 +7,9 @@ use novatorgroup\nss_connect\NssDirect;
 
 /**
  * Данные по дисконтной карте
- * @property $card string
- * @property $summ float
+ *
+ * @property string $card
+ * @property float $summ
  */
 class UserCard extends Object
 {
@@ -18,7 +19,7 @@ class UserCard extends Object
     private $card = '';
 
     /**
-     * @var int Сумма текущей покупки
+     * @var float Сумма текущей покупки
      */
     private $summ = 0;
 
@@ -43,7 +44,7 @@ class UserCard extends Object
 
     /**
      * Сумма текущей покупки
-     * @param $value
+     * @param float $value
      */
     public function setSumm($value)
     {

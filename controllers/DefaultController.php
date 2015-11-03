@@ -3,15 +3,12 @@
 namespace novatorgroup\usercard\controllers;
 
 use Yii;
-use novatorgroup\usercard\components\UserCard;
-use novatorgroup\usercard\models\DiscountCardForm;
 use yii\bootstrap\Html;
 use yii\web\Controller;
 use yii\web\Response;
+use novatorgroup\usercard\components\UserCard;
+use novatorgroup\usercard\models\DiscountCardForm;
 
-/**
- * Дисконтная карта
- */
 class DefaultController extends Controller
 {
     /**
@@ -32,19 +29,18 @@ class DefaultController extends Controller
             }
 
             $userCard = new UserCard();
-            $userCard->card = $model->cardFullName(true);
+            $userCard->card = $model->fullName;
             $result = $userCard->getInfo();
 
-            if (isset($result->discount))
-            {
-                //Yii::app()->cart->clearCardInfo(); // TODO
+            /** @var \novatorgroup\usercard\Module $module */
+            $module = Yii::$app->getModule('card');
 
-                $this->sendEmailManager('Дисконтная карта успешно привязана: '.$model->cardFullName(true));
+            if (isset($result->discount)) {
+                $module->afterCheckCard($model);
+
                 return ['result' => true];
-            }
-            else
-            {
-                $this->sendEmailManager('Ошибка привязки карты: ('.$model->cardFullName(true).'): '.$result->error);
+            } else {
+                $module->errorCheckCard($model, $result->error);
 
                 return [
                     'result' => false,
@@ -54,19 +50,5 @@ class DefaultController extends Controller
         }
 
         return ['result' => false, 'message' => 'Ошибка привязки карты'];
-    }
-
-    /**
-     * Уведовление на почту оператору
-     * @param string $message
-     */
-    private function sendEmailManager($message)
-    {
-        // TODO
-
-/*        $objEmail = new CEmail();
-        $objEmail->compose('admin', ['message' => $message])
-                 ->setSubject('Сообщение с сайта '.Yii::app()->name)
-                 ->send(Yii::app()->params['cardEmail']);*/
     }
 }

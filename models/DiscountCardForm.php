@@ -2,10 +2,13 @@
 
 namespace novatorgroup\usercard\models;
 
+use Yii;
 use yii\base\Model;
 
 /**
  * Форма привязки дисконтной карты
+ *
+ * @property string $fullName
  */
 class DiscountCardForm extends Model
 {
@@ -64,11 +67,9 @@ class DiscountCardForm extends Model
 
     public static function getPrefixes()
     {
-        return [
-            'NR' => 'NR',
-            'NR D' => 'NR D',
-            'NR HOME' => 'NR HOME'
-        ];
+        /** @var \novatorgroup\usercard\Module $module */
+        $module = Yii::$app->getModule('card');
+        return $module->prefixes;
     }
 
     /**
@@ -76,7 +77,7 @@ class DiscountCardForm extends Model
      * @param bool $withName
      * @return string
      */
-    public function cardFullName($withName = false)
+    public function getFullName($withName = true)
     {
         $card = $this->prefix . ' ' . $this->series . ' ' . $this->number;
         if ($withName) {

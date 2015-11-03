@@ -1,0 +1,20 @@
+{
+    "name": "novatorgroup/user-card-module",
+    "version": "1.0.0",
+    "description": "User discount card",
+    "authors": [
+        {
+            "name": "Melnikov Ruslan",
+            "email": "mrs2000@inbox.ru"
+        }
+    ],
+    "require": {
+        "yiisoft/yii2": "*",
+		"novatorgroup/nss-connect": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "novatorgroup\\usercard\\": ""
+        }
+    }
+}

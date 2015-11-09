@@ -34,7 +34,7 @@ $js =<<< JS
         return false;
     });
 
-    wnd.on('hide.bs.modal', function () {
+    wnd.on('hidden.bs.modal', function () {
         if (!dcResult) { $cancel }
     });
 JS;

@@ -5,7 +5,7 @@ namespace novatorgroup\usercard;
 use novatorgroup\usercard\components\CheckCardEvent;
 
 /**
- * Модуля для получения данных по дисконтным картам
+ * Модуль для получения данных по дисконтным картам
  * и привязки к аккаунту пользователя
  */
 class Module extends \yii\base\Module

@@ -2,28 +2,40 @@
 /**
  * @var $this \yii\web\View
  * @var string $success
+ * @var string $cancel
  */
 
 use novatorgroup\usercard\models\DiscountCardForm;
 use yii\bootstrap\ActiveForm;
 use yii\helpers\Html;
+use yii\helpers\Url;
 
 $model = new DiscountCardForm();
+$url = Url::to(['/card/default/index']);
 
 $js =<<< JS
+    var dcResult = false;
+    var wnd = $('#discount-card-window');
+
     $('#card-link').click(function () {
         var btn = $(this);
         $(".discount-card-errors").html("<p class=\'alert alert-info\'>Проверка данных...</p>");
         btn.attr("disabled", "disabled");
-        $.post('/card/default/index', $('#discount-card-form').serialize(), function (response) {
+        $.post('$url', $('#discount-card-form').serialize(), function (response) {
             btn.removeAttr("disabled");
             if (response.result) {
+                dcResult = true;
+                wnd.modal('hide');
                 $success
             } else {
                 $(".discount-card-errors").html(response.message);
             }
         });
         return false;
+    });
+
+    wnd.on('hide.bs.modal', function () {
+        if (!dcResult) { $cancel }
     });
 JS;
 

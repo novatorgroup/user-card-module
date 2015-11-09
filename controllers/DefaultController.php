@@ -2,12 +2,12 @@
 
 namespace novatorgroup\usercard\controllers;
 
+use novatorgroup\usercard\components\UserCard;
+use novatorgroup\usercard\models\DiscountCardForm;
 use Yii;
 use yii\bootstrap\Html;
 use yii\web\Controller;
 use yii\web\Response;
-use novatorgroup\usercard\components\UserCard;
-use novatorgroup\usercard\models\DiscountCardForm;
 
 class DefaultController extends Controller
 {
@@ -44,7 +44,10 @@ class DefaultController extends Controller
 
                 return [
                     'result' => false,
-                    'message' => Html::tag('div', $result->error, ['class' => 'alert alert-danger'])
+                    'message' => Html::tag('div',
+                        'По техническим причинам функция недоступна. Попробуйте позже.',
+                        ['class' => 'alert alert-danger']
+                    )
                 ];
             }
         }

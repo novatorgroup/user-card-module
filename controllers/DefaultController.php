@@ -44,10 +44,7 @@ class DefaultController extends Controller
 
                 return [
                     'result' => false,
-                    'message' => Html::tag('div',
-                        'По техническим причинам функция недоступна. Попробуйте позже.',
-                        ['class' => 'alert alert-danger']
-                    )
+                    'message' => Html::tag('div', $result->error, ['class' => 'alert alert-danger'])
                 ];
             }
         }

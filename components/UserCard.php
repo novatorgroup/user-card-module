@@ -18,11 +18,6 @@ class UserCard extends Object
      */
     private $card = '';
 
-    /**
-     * @var float Сумма текущей покупки
-     */
-    private $summ = 0;
-
     public $name1 = '';
     public $name2 = '';
     public $name3 = '';
@@ -43,15 +38,6 @@ class UserCard extends Object
     }
 
     /**
-     * Сумма текущей покупки
-     * @param float $value
-     */
-    public function setSumm($value)
-    {
-        $this->summ = str_replace('.', ',', $value);
-    }
-
-    /**
      * Полное имя карты
      */
     public static function getCard()
@@ -60,23 +46,11 @@ class UserCard extends Object
     }
 
     /**
-     * Скидка
-     * @return string
+     * Вид дисконтной карты
      */
-    public static function discountName()
+    public static function getType()
     {
-        $discount = Yii::$app->session->get('discount');
-        return $discount === null ? 'неизвестна' : $discount.'%';
-    }
-
-    /**
-     * Скидка
-     * @return float
-     */
-    public static function discount()
-    {
-        $discount = Yii::$app->session->get('discount');
-        return $discount === null ? 1 : 1 - ($discount / 100);
+        return Yii::$app->session->get('card-type');
     }
 
     /**
@@ -85,7 +59,7 @@ class UserCard extends Object
     public static function reset()
     {
         Yii::$app->session->remove('card');
-        Yii::$app->session->remove('discount');
+        Yii::$app->session->remove('card-type');
     }
 
     /**
@@ -107,15 +81,12 @@ class UserCard extends Object
         ]);
 
         $result = $nss->request('CheckCard', [
-            'card' => $this->card,
-            'summ' => $this->summ
+            'card' => $this->card
         ]);
 
-        if (isset($result->discount)) {
+        if (!empty($result->type)) {
             Yii::$app->session->set('card', $this->card);
-            if ($this->summ == 0) {
-                Yii::$app->session->set('discount', (string)$result->discount);
-            }
+            Yii::$app->session->set('card-type', (string)$result->type);
         }
 
         return $result;

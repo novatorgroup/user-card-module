@@ -26,6 +26,7 @@ $js =<<< JS
             if (response.result) {
                 dcResult = true;
                 wnd.modal('hide');
+                $(".discount-card-errors").empty();
                 $success
             } else {
                 $(".discount-card-errors").html(response.message);

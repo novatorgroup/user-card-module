@@ -35,7 +35,7 @@ class DefaultController extends Controller
             /** @var \novatorgroup\usercard\Module $module */
             $module = Yii::$app->getModule('card');
 
-            if (isset($result->discount)) {
+            if (isset($result->type)) {
                 $module->afterCheckCard($model);
 
                 return ['result' => true];

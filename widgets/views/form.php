@@ -1,8 +1,9 @@
-<?
+<?php
 /**
  * @var $this \yii\web\View
  * @var string $success
  * @var string $cancel
+ * @var array $params
  */
 
 use novatorgroup\usercard\models\DiscountCardForm;
@@ -60,13 +61,15 @@ $this->registerCss($css);
 <div class="modal fade" id="discount-card-window">
     <div class="modal-dialog">
 
-        <?
-            $form = ActiveForm::begin([
-                'action' => '/card/default/index',
-                'id' => 'discount-card-form',
-                'enableAjaxValidation' => false,
-                'layout' => 'horizontal'
-            ]);
+        <?php
+        $form = ActiveForm::begin([
+            'action' => '/card/default/index',
+            'id' => 'discount-card-form',
+            'enableAjaxValidation' => false,
+            'layout' => 'horizontal'
+        ]);
+
+        echo Html::hiddenInput('params', json_encode($params));
         ?>
 
         <div class="modal-content">

@@ -1,4 +1,5 @@
 <?php
+
 namespace novatorgroup\usercard\components;
 
 use Yii;
@@ -65,7 +66,7 @@ class UserCard extends Object
     /**
      * Запрос на проверку карты
      * @param $card string
-     * @return \SimpleXMLElement | \StdClass
+     * @return \novatorgroup\nss_connect\NssResponse|\StdClass
      */
     public function getInfo($card = null)
     {

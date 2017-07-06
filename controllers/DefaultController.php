@@ -35,18 +35,19 @@ class DefaultController extends Controller
             /** @var \novatorgroup\usercard\Module $module */
             $module = Yii::$app->getModule('card');
 
+            $params = Yii::$app->request->post('params', '[]');
+            $params = json_decode($params, true);
+
             if (isset($result->type)) {
-                $module->afterCheckCard($model);
-
+                $module->afterCheckCard($model, $params);
                 return ['result' => true];
-            } else {
-                $module->errorCheckCard($model, $result->error);
-
-                return [
-                    'result' => false,
-                    'message' => Html::tag('div', $result->error, ['class' => 'alert alert-danger'])
-                ];
             }
+
+            $module->errorCheckCard($model, $params, $result->error);
+            return [
+                'result' => false,
+                'message' => Html::tag('div', $result->error, ['class' => 'alert alert-danger'])
+            ];
         }
 
         return ['result' => false, 'message' => 'Ошибка привязки карты'];

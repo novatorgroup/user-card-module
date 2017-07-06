@@ -1,4 +1,4 @@
-<?
+<?php
 
 namespace novatorgroup\usercard\widgets;
 
@@ -16,12 +16,17 @@ class DiscountCardWidget extends Widget
      */
     public $cancel;
 
+    /**
+     * @var array Дополнительные параметры передаваемые в события "afterCheckCard" и "errorCheckCard"
+     */
+    public $params = [];
+
     public function run()
     {
         return $this->render('form', [
             'success' => $this->success,
-            'cancel' => $this->cancel
+            'cancel' => $this->cancel,
+            'params' => $this->params
         ]);
     }
 }
-

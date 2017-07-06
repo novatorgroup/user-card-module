@@ -1,4 +1,4 @@
-<?
+<?php
 
 namespace novatorgroup\usercard\components;
 
@@ -15,4 +15,9 @@ class CheckCardEvent extends Event
      * @var string
      */
     public $message;
+
+    /**
+     * @var array дополнительные параметры
+     */
+    public $params = [];
 }

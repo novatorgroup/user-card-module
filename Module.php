@@ -1,4 +1,4 @@
-<?
+<?php
 
 namespace novatorgroup\usercard;
 
@@ -25,23 +25,27 @@ class Module extends \yii\base\Module
     /**
      * Карта найдена
      * @param \novatorgroup\usercard\models\DiscountCardForm $card
+     * @param array $params
      */
-    public function afterCheckCard($card)
+    public function afterCheckCard($card, $params)
     {
         $event = new CheckCardEvent;
         $event->card = $card;
+        $event->params = $params;
         $this->trigger(self::EVENT_AFTER_CHECK_CARD, $event);
     }
 
     /**
      * Карта не найдена
      * @param \novatorgroup\usercard\models\DiscountCardForm $card
+     * @param array $params
      * @param string $message
      */
-    public function errorCheckCard($card, $message)
+    public function errorCheckCard($card, $params, $message)
     {
         $event = new CheckCardEvent;
         $event->card = $card;
+        $event->params = $params;
         $event->message = $message;
         $this->trigger(self::EVENT_ERROR_CHECK_CARD, $event);
     }

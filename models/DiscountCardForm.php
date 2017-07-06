@@ -39,7 +39,7 @@ class DiscountCardForm extends Model
     {
         $this->$attribute = preg_replace('/s+/', '', $this->$attribute);
 
-		mb_internal_encoding('UTF-8');
+        mb_internal_encoding('UTF-8');
         $result = [];
         foreach (explode('-', $this->$attribute) as $part) {
             $result[] = $this->upperFirst($part);
@@ -47,8 +47,8 @@ class DiscountCardForm extends Model
 
         $this->$attribute = implode('-', $result);
     }
-	
-	private function upperFirst($value)
+
+    private function upperFirst($value)
     {
         return mb_strtoupper(mb_substr($value, 0, 1)) . mb_strtolower(mb_substr($value, 1));
     }
@@ -68,8 +68,9 @@ class DiscountCardForm extends Model
     public static function getPrefixes()
     {
         /** @var \novatorgroup\usercard\Module $module */
+        /** @noinspection OneTimeUseVariablesInspection */
         $module = Yii::$app->getModule('card');
-        return $module->prefixes;
+        return $module;
     }
 
     /**

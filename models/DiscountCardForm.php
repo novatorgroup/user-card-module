@@ -70,7 +70,7 @@ class DiscountCardForm extends Model
         /** @var \novatorgroup\usercard\Module $module */
         /** @noinspection OneTimeUseVariablesInspection */
         $module = Yii::$app->getModule('card');
-        return $module;
+        return $module->prefixes;
     }
 
     /**

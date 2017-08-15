@@ -10,7 +10,8 @@ use novatorgroup\nss_connect\NssDirect;
  * Данные по дисконтной карте
  *
  * @property string $card
- * @property float $summ
+ * @property string $type
+ * @property float $money
  */
 class UserCard extends Object
 {
@@ -55,12 +56,21 @@ class UserCard extends Object
     }
 
     /**
+     * Сумма накоплений по карте
+     */
+    public static function getMoney()
+    {
+        return Yii::$app->session->get('card-money');
+    }
+
+    /**
      * Сброс карты
      */
     public static function reset()
     {
         Yii::$app->session->remove('card');
         Yii::$app->session->remove('card-type');
+        Yii::$app->session->remove('card-money');
     }
 
     /**
@@ -88,6 +98,7 @@ class UserCard extends Object
         if (!empty($result->type)) {
             Yii::$app->session->set('card', $this->card);
             Yii::$app->session->set('card-type', (string)$result->type);
+            Yii::$app->session->set('card-money', (float)str_replace(',', '.', $result->money));
         }
 
         return $result;

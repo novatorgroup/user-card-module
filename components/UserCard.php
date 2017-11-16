@@ -3,7 +3,7 @@
 namespace novatorgroup\usercard\components;
 
 use Yii;
-use yii\base\Object;
+use yii\base\BaseObject;
 use novatorgroup\nss_connect\NssDirect;
 
 /**
@@ -13,7 +13,7 @@ use novatorgroup\nss_connect\NssDirect;
  * @property string $type
  * @property float $money
  */
-class UserCard extends Object
+class UserCard extends BaseObject
 {
     /**
      * @var string Номер карты

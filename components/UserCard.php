@@ -2,9 +2,9 @@
 
 namespace novatorgroup\usercard\components;
 
+use novatorgroup\service1c\HttpService;
 use Yii;
 use yii\base\BaseObject;
-use novatorgroup\nss_connect\NssDirect;
 
 /**
  * Данные по дисконтной карте
@@ -23,6 +23,8 @@ class UserCard extends BaseObject
     public $name1 = '';
     public $name2 = '';
     public $name3 = '';
+
+    private $_error;
 
     /**
      * Полное имя карты
@@ -63,6 +65,11 @@ class UserCard extends BaseObject
         return Yii::$app->session->get('card-money');
     }
 
+    public function getError()
+    {
+        return $this->_error;
+    }
+
     /**
      * Сброс карты
      */
@@ -76,7 +83,7 @@ class UserCard extends BaseObject
     /**
      * Запрос на проверку карты
      * @param $card string
-     * @return \novatorgroup\nss_connect\NssResponse|\StdClass
+     * @return \novatorgroup\usercard\components\Infodk
      */
     public function getInfo($card = null)
     {
@@ -84,21 +91,28 @@ class UserCard extends BaseObject
             $this->setCard($card);
         }
 
+        /** @var \novatorgroup\usercard\components\Infodk $result */
+        $result = null;
+
+        /** @var \novatorgroup\usercard\Module $module */
         $module = Yii::$app->getModule('card');
-
-        $nss = new NssDirect([
-            'ip' => $module->params['nssIP'],
-            'port' => $module->params['nssPort'],
-        ]);
-
-        $result = $nss->request('CheckCard', [
-            'card' => $this->card
-        ]);
-
-        if (!empty($result->type)) {
-            Yii::$app->session->set('card', $this->card);
-            Yii::$app->session->set('card-type', (string)$result->type);
-            Yii::$app->session->set('card-money', (float)str_replace(',', '.', $result->money));
+        if ($module) {
+            $httpService = new HttpService($module->params['serviceConfig']);
+            $response = $httpService->get('infodk', [$this->card]);
+            if ($response->error) {
+                $this->_error = 'Сервис временно недоступен.';
+            } else {
+                if ($response->code == 200) {
+                    $result = @simplexml_load_string($response->result, Infodk::class);
+                    Yii::$app->session->set('card', (string)$result->Name);
+                    Yii::$app->session->set('card-type', (string)$result->Vid);
+                    Yii::$app->session->set('card-money', (float)str_replace(',', '.', $result->Summa));
+                } elseif ($response->code == 404) {
+                    $this->_error = 'Карта не найдена.';
+                } else {
+                    $this->_error = 'Сервис временно недоступен.';
+                }
+            }
         }
 
         return $result;

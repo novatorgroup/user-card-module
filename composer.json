@@ -10,7 +10,7 @@
     ],
     "require": {
         "yiisoft/yii2": "*",
-		"novatorgroup/nss-connect": "*"
+		"novatorgroup/service1c": "*"
     },
     "autoload": {
         "psr-4": {

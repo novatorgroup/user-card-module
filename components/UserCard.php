@@ -3,6 +3,7 @@
 namespace novatorgroup\usercard\components;
 
 use novatorgroup\service1c\HttpService;
+use novatorgroup\usercard\Module;
 use Yii;
 use yii\base\BaseObject;
 
@@ -11,6 +12,7 @@ use yii\base\BaseObject;
  *
  * @property string $card
  * @property string $type
+ * @property string $error
  * @property float $money
  */
 class UserCard extends BaseObject
@@ -24,6 +26,9 @@ class UserCard extends BaseObject
     public $name2 = '';
     public $name3 = '';
 
+    /**
+     * @var string
+     */
     private $_error;
 
     /**
@@ -34,38 +39,47 @@ class UserCard extends BaseObject
     {
         $this->card = $value;
 
-        if (preg_match('/.* \d{4} \d{3} (.*) (.*) (.*)/u', $value, $mathes)) {
-            $this->name1 = $mathes[1];
-            $this->name2 = $mathes[2];
-            $this->name3 = $mathes[3];
+        if ($names = self::extractClientName($value)) {
+            $this->name1 = $names[0];
+            $this->name2 = $names[1];
+            $this->name3 = $names[2];
         }
+    }
+
+    /**
+     * Получть ФИО клиента из полного наимнования карты
+     * @param string $value
+     * @return array
+     */
+    public static function extractClientName(string $value): array
+    {
+        if (preg_match('/.* \d{4} \d{3} (.*) (.*) (.*)/u', $value, $mathes)) {
+            return [$mathes[1], $mathes[2], $mathes[3]];
+        }
+        return null;
     }
 
     /**
      * Полное имя карты
      */
-    public static function getCard()
+    public static function getCard(): ?string
     {
         return Yii::$app->session->get('card');
     }
 
     /**
-     * Вид дисконтной карты
+     * Сумма накоплений по карте
      */
-    public static function getType()
+    public static function getMoney(): float
     {
-        return Yii::$app->session->get('card-type');
+        return Yii::$app->session->get('card-money', 0);
     }
 
     /**
-     * Сумма накоплений по карте
+     * Сообщение об ошибке
+     * @return string|null
      */
-    public static function getMoney()
-    {
-        return Yii::$app->session->get('card-money');
-    }
-
-    public function getError()
+    public function getError(): ?string
     {
         return $this->_error;
     }
@@ -73,48 +87,89 @@ class UserCard extends BaseObject
     /**
      * Сброс карты
      */
-    public static function reset()
+    public static function reset(): void
     {
         Yii::$app->session->remove('card');
-        Yii::$app->session->remove('card-type');
         Yii::$app->session->remove('card-money');
     }
 
     /**
      * Запрос на проверку карты
-     * @param $card string
-     * @return \novatorgroup\usercard\components\Infodk
+     * @param string|null $card
+     * @return ClientCard|null
      */
-    public function getInfo($card = null)
+    public function getInfo(?string $card = null): ?ClientCard
     {
-        if ($card !== null) {
+        if ($card) {
             $this->setCard($card);
         }
 
-        /** @var \novatorgroup\usercard\components\Infodk $result */
-        $result = null;
-
-        /** @var \novatorgroup\usercard\Module $module */
-        $module = Yii::$app->getModule('card');
-        if ($module) {
-            $httpService = new HttpService($module->params['serviceConfig']);
-            $response = $httpService->get('infodk', [$this->card]);
-            if ($response->error) {
-                $this->_error = 'Сервис временно недоступен.';
-            } else {
-                if ($response->code == 200) {
-                    $result = @simplexml_load_string($response->result, Infodk::class);
-                    Yii::$app->session->set('card', (string)$result->Name);
-                    Yii::$app->session->set('card-type', (string)$result->Vid);
-                    Yii::$app->session->set('card-money', (float)str_replace(',', '.', $result->Summa));
-                } elseif ($response->code == 404) {
-                    $this->_error = 'Карта не найдена.';
-                } else {
-                    $this->_error = 'Сервис временно недоступен.';
-                }
-            }
+        if ($result = $this->request('infodk', $this->card)) {
+            $this->saveCardInfo($result->getFullCardName(), $result->getMoney());
         }
 
         return $result;
+    }
+
+    /**
+     * Поиск карты по номеру телефона
+     * @param string $phone (10 цифр)
+     * @return ClientCard|null
+     */
+    public function findByPhone(string $phone): ?ClientCard
+    {
+        if ($result = $this->request('phone_check', $phone)) {
+            $this->saveCardInfo($result->getFullCardName(), $result->getMoney());
+        }
+        return $result;
+    }
+
+    /**
+     * Выполнение запроса к 1С
+     * @param string $command
+     * @param string $param
+     * @return ClientCard|null
+     */
+    private function request(string $command, string $param): ?ClientCard
+    {
+        if ($httpService = $this->httpService()) {
+            $response = $httpService->get($command, [$param]);
+            if ($response->error) {
+                $this->_error = 'Сервис временно недоступен.';
+            } else if ($response->code == 200) {
+                /** @var ClientCard $result */
+                $result = @simplexml_load_string($response->result, ClientCard::class);
+                return $result;
+            } elseif ($response->code == 404) {
+                $this->_error = 'Карта не найдена.';
+            } else {
+                $this->_error = 'Сервис временно недоступен.';
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @return HttpService|null
+     */
+    private function httpService(): ?HttpService
+    {
+        /** @var Module $module */
+        $module = Yii::$app->getModule('card');
+        if ($module) {
+            return new HttpService($module->params['serviceConfig']);
+        }
+        return null;
+    }
+
+    /**
+     * @param $card
+     * @param $money
+     */
+    private function saveCardInfo(string $card, float $money): void
+    {
+        Yii::$app->session->set('card', $card);
+        Yii::$app->session->set('card-money', $money);
     }
 }

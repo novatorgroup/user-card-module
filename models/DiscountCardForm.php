@@ -67,10 +67,8 @@ class DiscountCardForm extends Model
 
     public static function getPrefixes()
     {
-        /** @var \novatorgroup\usercard\Module $module */
-        /** @noinspection OneTimeUseVariablesInspection */
-        $module = Yii::$app->getModule('card');
-        return $module->prefixes;
+        /** @noinspection PhpUndefinedFieldInspection */
+        return Yii::$app->getModule('card')->prefixes;
     }
 
     /**

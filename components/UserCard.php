@@ -51,7 +51,7 @@ class UserCard extends BaseObject
      * @param string $value
      * @return array
      */
-    public static function extractClientName(string $value): array
+    public static function extractClientName(string $value): ?array
     {
         if (preg_match('/.* \d{4} \d{3} (.*) (.*) (.*)/u', $value, $mathes)) {
             return [$mathes[1], $mathes[2], $mathes[3]];

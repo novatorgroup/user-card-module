@@ -53,8 +53,11 @@ class UserCard extends BaseObject
      */
     public static function extractClientName(string $value): ?array
     {
-        if (preg_match('/.* \d{4} \d{3} (.*) (.*) (.*)/u', $value, $mathes)) {
-            return [$mathes[1], $mathes[2], $mathes[3]];
+        if (preg_match('/.* \d{4} \d{3} (.*)/u', $value, $mathes)) {
+            $list = explode(' ', $mathes[1]);
+            $list[1] = $list[1] ?? '';
+            $list[2] = $list[2] ?? '';
+            return $list;
         }
         return null;
     }
@@ -64,7 +67,10 @@ class UserCard extends BaseObject
      */
     public static function getCard(): ?string
     {
-        return Yii::$app->session->get('card');
+        if ($session = Yii::$app->get('session', false)) {
+            return $session->get('card');
+        }
+        return null;
     }
 
     /**
@@ -89,14 +95,17 @@ class UserCard extends BaseObject
      */
     public static function reset(): void
     {
-        Yii::$app->session->remove('card');
-        Yii::$app->session->remove('card-money');
+        if ($session = Yii::$app->get('session', false)) {
+            $session->remove('card');
+            $session->remove('card-money');
+        }
     }
 
     /**
      * Запрос на проверку карты
      * @param string|null $card
      * @return ClientCard|null
+     * @throws \yii\base\InvalidConfigException
      */
     public function getInfo(?string $card = null): ?ClientCard
     {
@@ -115,6 +124,7 @@ class UserCard extends BaseObject
      * Поиск карты по номеру телефона
      * @param string $phone (10 цифр)
      * @return ClientCard|null
+     * @throws \yii\base\InvalidConfigException
      */
     public function findByPhone(string $phone): ?ClientCard
     {
@@ -166,10 +176,13 @@ class UserCard extends BaseObject
     /**
      * @param $card
      * @param $money
+     * @throws \yii\base\InvalidConfigException
      */
     private function saveCardInfo(string $card, float $money): void
     {
-        Yii::$app->session->set('card', $card);
-        Yii::$app->session->set('card-money', $money);
+        if ($session = Yii::$app->get('session', false)) {
+            $session->set('card', $card);
+            $session->set('card-money', $money);
+        }
     }
 }

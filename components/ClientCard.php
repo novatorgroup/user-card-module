@@ -42,11 +42,7 @@ class ClientCard extends SimpleXMLElement
     public function getFullCardName(): string
     {
         if (empty($this->Name)) {
-            if ((string)$this->Card == (string)$this->Partner) {
-                $this->Name = (string)$this->Card;
-            } else {
-                $this->Name = $this->Card . ' ' . $this->Partner;
-            }
+            $this->Name = (string)$this->Card;
         }
 
         return (string)$this->Name;
